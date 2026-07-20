@@ -63,6 +63,10 @@ sequenceDiagram
 
 The analyzer uses transparent rules before optional language-model summarization. Flakiness is based on pass/fail transitions over a bounded recent window; it is a signal, not proof of a flaky test.
 
+## Extension path
+
+The UI adapter contract can wrap Selenium/Grid without changing domain models; Playwright is the implemented runner. Behave is the primary BDD runtime, while a Cucumber.js adapter can consume the same generated feature text and traceability tags. Database URLs and stateless API containers are suitable for later AWS or Azure deployment, but no cloud infrastructure is claimed. PostgreSQL, broker-backed workers, Kafka, and remote defect trackers remain planned.
+
 ## Observability
 
 ASGI middleware adds correlation IDs and JSON request logs. Prometheus counters and histograms cover requests, latency, executions, failure categories, and detected flaky tests. Test execution IDs flow in records and reports.
@@ -77,4 +81,3 @@ The primary workflow installs Python and Node dependencies, starts the SUT, wait
 - In-process rate limiting and execution are suitable for a demo, not multi-instance production.
 - Rule-based generation is repeatable and inspectable; it is less expressive than an LLM but works offline.
 - The UI is intentionally server-rendered HTML plus Streamlit, keeping focus on quality engineering rather than frontend framework work.
-

@@ -46,6 +46,12 @@ with tab_overview:
             st.bar_chart(frame[frame.status == "failed"].groupby("failure_signature").size())
         else:
             st.info("No executions recorded yet. Use the API or test reporter to add one.")
+        defects = api_get("/api/defects")
+        st.subheader("Recent defects")
+        if defects:
+            st.dataframe(pd.DataFrame(defects), use_container_width=True)
+        else:
+            st.caption("No defect reports generated yet.")
     except Exception as exc:
         st.error(f"QualityPilot API unavailable: {exc}")
 

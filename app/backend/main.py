@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 
 from qualitypilot.ai_quality.deterministic import DeterministicAIQualityAdapter, demo_agent
 from qualitypilot.analysis.failure_analyzer import DeterministicFailureAnalyzer
-from qualitypilot.database import TestExecution, get_db, init_db
+from qualitypilot.database import DefectRecord, TestExecution, get_db, init_db
 from qualitypilot.defect_reporting.reporter import (
     build_defect,
     to_jira_payload,
@@ -125,16 +125,38 @@ def flaky_test(test_id: str, db: Session = Depends(get_db)):
 
 
 @app.post("/api/defects")
-def create_defect(payload: DefectInput):
+def create_defect(payload: DefectInput, db: Session = Depends(get_db)):
     analysis = analyzer.analyze(payload.failure)
     report = build_defect(payload.failure, analysis, payload.related_test_case, payload.commit_sha)
     paths = write_reports(report, Path("reports/generated"))
+    stored = db.query(DefectRecord).filter(DefectRecord.defect_id == report.defect_id).first()
+    if stored:
+        stored.title = report.title
+        stored.report_json = report.model_dump(mode="json")
+        stored.markdown_path = paths["markdown"]
+    else:
+        db.add(
+            DefectRecord(
+                defect_id=report.defect_id,
+                title=report.title,
+                report_json=report.model_dump(mode="json"),
+                markdown_path=paths["markdown"],
+            )
+        )
+    db.commit()
     return {
         "report": report,
         "markdown": to_markdown(report),
         "jira_payload": to_jira_payload(report),
         "artifacts": paths,
     }
+
+
+@app.get("/api/defects")
+def list_defects(limit: int = 25, db: Session = Depends(get_db)):
+    return (
+        db.query(DefectRecord).order_by(DefectRecord.created_at.desc()).limit(min(limit, 100)).all()
+    )
 
 
 @app.post("/api/ai/agent")

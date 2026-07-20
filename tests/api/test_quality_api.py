@@ -33,3 +33,21 @@ def test_execution_history_and_flaky_result():
             )
         result = client.get("/api/flaky/T-FLAKY").json()
         assert result["is_likely_flaky"]
+
+
+def test_defect_is_rendered_and_persisted():
+    with TestClient(app) as client:
+        response = client.post(
+            "/api/defects",
+            json={
+                "failure": {
+                    "test_name": "login",
+                    "error_message": "expected status code 200 got 500",
+                },
+                "related_test_case": "TC-AUTH-DEFECT",
+            },
+        )
+        assert response.status_code == 200
+        assert response.json()["jira_payload"]["fields"]["issuetype"]["name"] == "Bug"
+        stored = client.get("/api/defects").json()
+        assert any(item["defect_id"] == "QP-TC-AUTH-DEFECT" for item in stored)
