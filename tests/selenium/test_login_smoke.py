@@ -7,8 +7,7 @@ import urllib.request
 
 import pytest
 
-selenium = pytest.importorskip("selenium")
-from selenium import webdriver  # noqa: E402
+webdriver = pytest.importorskip("selenium.webdriver")
 from selenium.webdriver.common.by import By  # noqa: E402
 from selenium.webdriver.support import expected_conditions as conditions  # noqa: E402
 from selenium.webdriver.support.ui import WebDriverWait  # noqa: E402

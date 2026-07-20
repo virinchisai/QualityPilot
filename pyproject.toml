@@ -34,7 +34,7 @@ test = [
 ]
 dev = ["qualitypilot[test,dashboard]", "ruff>=0.8,<1", "mypy>=1.13,<2"]
 load = ["locust>=2.32,<3"]
-selenium = ["selenium>=4.27,<5"]
+selenium = ["pytest>=9,<10", "selenium>=4.27,<5"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["qualitypilot", "app"]
