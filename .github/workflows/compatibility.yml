@@ -1,0 +1,48 @@
+name: Legacy compatibility examples
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "qualitypilot/adapters/selenium.py"
+      - "tests/selenium/**"
+      - "tests/cucumber/**"
+      - "cucumber.config.mjs"
+      - "package*.json"
+      - ".github/workflows/compatibility.yml"
+permissions:
+  contents: read
+jobs:
+  selenium-cucumber:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12", cache: pip }
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: npm }
+      - uses: browser-actions/setup-chrome@v1
+      - run: pip install -e '.[selenium]'
+      - run: npm ci
+      - name: Start demo SUT
+        run: uvicorn app.demo_app.main:app --host 127.0.0.1 --port 8000 > compatibility-sut.log 2>&1 &
+        env:
+          DATABASE_URL: sqlite:///./compatibility.db
+          JWT_SECRET: compatibility-secret-at-least-thirty-two-characters
+          LOGIN_RATE_LIMIT: 100
+      - name: Wait for health
+        run: for i in {1..30}; do curl -fsS http://127.0.0.1:8000/health && exit 0; sleep 1; done; exit 1
+      - name: Selenium smoke
+        run: pytest tests/selenium -m selenium -q --junitxml=reports/selenium-junit.xml
+        env:
+          SELENIUM_COMPATIBILITY: "true"
+      - name: Cucumber.js compatibility
+        run: npm run test:cucumber
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: compatibility-reports
+          path: |
+            reports/selenium-junit.xml
+            reports/cucumber.json
+            compatibility-sut.log
+          if-no-files-found: warn

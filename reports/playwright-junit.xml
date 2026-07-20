@@ -1,6 +1,6 @@
-<testsuites id="" name="" tests="9" failures="0" skipped="2" errors="0" time="6.835216">
-<testsuite name="accessibility.spec.ts" timestamp="2026-07-20T22:08:39.311Z" hostname="chromium" tests="2" failures="0" skipped="1" time="1.287" errors="0">
-<testcase name="login has no automatically detectable critical violations" classname="accessibility.spec.ts" time="1.069">
+<testsuites id="" name="" tests="9" failures="0" skipped="2" errors="0" time="5.944694">
+<testsuite name="accessibility.spec.ts" timestamp="2026-07-20T22:40:57.954Z" hostname="chromium" tests="2" failures="0" skipped="1" time="1.705" errors="0">
+<testcase name="login has no automatically detectable critical violations" classname="accessibility.spec.ts" time="1.364">
 </testcase>
 <testcase name="login visual baseline" classname="accessibility.spec.ts">
 <properties>
@@ -11,18 +11,18 @@
 </skipped>
 </testcase>
 </testsuite>
-<testsuite name="auth.spec.ts" timestamp="2026-07-20T22:08:39.311Z" hostname="chromium" tests="7" failures="0" skipped="1" time="4.132" errors="0">
-<testcase name="valid login, profile update, and logout" classname="auth.spec.ts" time="1.427">
+<testsuite name="auth.spec.ts" timestamp="2026-07-20T22:40:57.954Z" hostname="chromium" tests="7" failures="0" skipped="1" time="4.328" errors="0">
+<testcase name="valid login, profile update, and logout" classname="auth.spec.ts" time="1.653">
 </testcase>
-<testcase name="invalid login and form validation" classname="auth.spec.ts" time="1.209">
+<testcase name="invalid login and form validation" classname="auth.spec.ts" time="1.284">
 </testcase>
-<testcase name="protected dashboard redirects without session" classname="auth.spec.ts" time="0.364">
+<testcase name="protected dashboard redirects without session" classname="auth.spec.ts" time="0.269">
 </testcase>
-<testcase name="standard user has no admin navigation" classname="auth.spec.ts" time="0.366">
+<testcase name="standard user has no admin navigation" classname="auth.spec.ts" time="0.361">
 </testcase>
-<testcase name="session expiration clears invalid access token" classname="auth.spec.ts" time="0.28">
+<testcase name="session expiration clears invalid access token" classname="auth.spec.ts" time="0.279">
 </testcase>
-<testcase name="responsive layout has no horizontal overflow" classname="auth.spec.ts" time="0.23">
+<testcase name="responsive layout has no horizontal overflow" classname="auth.spec.ts" time="0.235">
 </testcase>
 <testcase name="intentional flaky timing demo" classname="auth.spec.ts">
 <properties>

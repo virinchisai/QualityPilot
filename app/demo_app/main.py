@@ -46,7 +46,7 @@ async def lifespan(_: FastAPI):
 
 app = FastAPI(
     title="QualityPilot Demo Enterprise App",
-    version="0.1.0",
+    version="1.0.0",
     description="System under test for authentication, authorization, API, and UI quality flows.",
     lifespan=lifespan,
 )

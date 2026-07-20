@@ -14,10 +14,15 @@ test-results/
 blob-report/
 allure-results/
 reports/generated/
+reports/python-junit.xml
+reports/selenium-junit.xml
+reports/cucumber.json
+reports/release-gate.json
+reports/behave/
+compatibility-sut.log
 artifacts/
 *.log
 .DS_Store
 # Never commit browser authentication/session state.
 playwright/.auth/
 storage-state*.json
-

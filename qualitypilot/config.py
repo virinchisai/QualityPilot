@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     environment: str = "development"
     database_url: str = "sqlite:///./qualitypilot.db"
     jwt_secret: str = "local-development-secret-change-me-32-chars"
+    qualitypilot_execution_token: str = "local-execution-only"
     access_token_minutes: int = Field(default=15, ge=1)
     refresh_token_minutes: int = Field(default=1440, ge=2)
     login_rate_limit: int = Field(default=5, ge=1)
@@ -48,6 +49,10 @@ class Settings(BaseSettings):
             raise ValueError("demo defect flags are forbidden in production")
         if self.environment.lower() == "production" and len(self.jwt_secret) < 32:
             raise ValueError("JWT_SECRET must contain at least 32 characters in production")
+        if self.environment.lower() == "production" and len(self.qualitypilot_execution_token) < 32:
+            raise ValueError(
+                "QUALITYPILOT_EXECUTION_TOKEN must contain at least 32 characters in production"
+            )
         return self
 
 

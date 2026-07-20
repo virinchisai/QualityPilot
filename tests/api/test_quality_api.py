@@ -51,3 +51,32 @@ def test_defect_is_rendered_and_persisted():
         assert response.json()["jira_payload"]["fields"]["issuetype"]["name"] == "Bug"
         stored = client.get("/api/defects").json()
         assert any(item["defect_id"] == "QP-TC-AUTH-DEFECT" for item in stored)
+
+
+def test_rally_traceability_and_release_gate_endpoints():
+    requirement = {
+        "source_format": "yaml",
+        "content": "id: AUTH-001\ntitle: User login\ndescription: A user signs in",
+    }
+    with TestClient(app) as client:
+        rally = client.post("/api/requirements/export/rally?export_format=json", json=requirement)
+        assert rally.status_code == 200
+        assert rally.json()[0]["WorkProduct"] == "AUTH-001"
+
+        matrix = client.get("/api/traceability")
+        assert matrix.status_code == 200
+        assert any(row["requirement_id"] == "AUTH-001" for row in matrix.json())
+
+        gate = client.post(
+            "/api/release-gates/evaluate",
+            json={"evidence": {"passed_tests": 38, "total_tests": 39}},
+        )
+        assert gate.status_code == 200
+        assert gate.json()["release_decision"] == "approved"
+
+
+def test_suite_execution_requires_separate_token():
+    with TestClient(app) as client:
+        assert client.post("/api/suites/unit/run").status_code == 401
+        suites = client.get("/api/suites").json()["suites"]
+        assert {"unit", "api", "identity", "bdd", "playwright"} <= set(suites)

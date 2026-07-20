@@ -1,15 +1,17 @@
 """QualityPilot control-plane API."""
 
+import hmac
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import Depends, FastAPI, HTTPException, Response
+from fastapi import Depends, FastAPI, Header, HTTPException, Response
 from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from qualitypilot.ai_quality.deterministic import DeterministicAIQualityAdapter, demo_agent
 from qualitypilot.analysis.failure_analyzer import DeterministicFailureAnalyzer
+from qualitypilot.config import Settings, get_settings
 from qualitypilot.database import DefectRecord, TestExecution, get_db, init_db
 from qualitypilot.defect_reporting.reporter import (
     build_defect,
@@ -17,11 +19,19 @@ from qualitypilot.defect_reporting.reporter import (
     to_markdown,
     write_reports,
 )
+from qualitypilot.execution.runner import SUITES, run_suite
+from qualitypilot.exporters.rally import RallyTestCaseExporter
 from qualitypilot.flaky_detection.detector import FlakyDetector, failure_signature, record_execution
 from qualitypilot.generators.deterministic import DeterministicTestGenerator
 from qualitypilot.models.analysis import FailureInput
 from qualitypilot.observability.middleware import ObservabilityMiddleware
+from qualitypilot.release_gates.evaluator import (
+    ReleaseEvidence,
+    ReleaseGateConfig,
+    ReleaseGateEvaluator,
+)
 from qualitypilot.requirements.parser import LocalRequirementAdapter
+from qualitypilot.traceability.matrix import build_traceability_matrix
 
 
 class RequirementInput(BaseModel):
@@ -39,7 +49,7 @@ class ExecutionInput(BaseModel):
     environment: str = "local"
     browser: str | None = None
     test_data_version: str = "v1"
-    evidence: dict = {}
+    evidence: dict = Field(default_factory=dict)
 
 
 class DefectInput(BaseModel):
@@ -54,13 +64,18 @@ class AgentInput(BaseModel):
     approved: bool = False
 
 
+class ReleaseGateInput(BaseModel):
+    evidence: ReleaseEvidence
+    config: ReleaseGateConfig = Field(default_factory=ReleaseGateConfig)
+
+
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     init_db()
     yield
 
 
-app = FastAPI(title="QualityPilot API", version="0.1.0", lifespan=lifespan)
+app = FastAPI(title="QualityPilot API", version="1.0.0", lifespan=lifespan)
 app.add_middleware(ObservabilityMiddleware, app_name="quality_api")
 parser, generator, analyzer, flaky = (
     LocalRequirementAdapter(),
@@ -68,6 +83,9 @@ parser, generator, analyzer, flaky = (
     DeterministicFailureAnalyzer(),
     FlakyDetector(),
 )
+rally_exporter = RallyTestCaseExporter()
+release_gate_evaluator = ReleaseGateEvaluator()
+ROOT = Path(__file__).parents[2]
 
 
 @app.get("/health")
@@ -88,6 +106,76 @@ def generate(payload: RequirementInput):
         ]
     except (ValueError, TypeError) as exc:
         raise HTTPException(422, str(exc)) from exc
+
+
+@app.post("/api/requirements/export/rally")
+def export_rally(payload: RequirementInput, export_format: str = "json"):
+    try:
+        requirements = parser.ingest(payload.content, payload.source_format)
+        cases = [
+            case
+            for requirement in requirements
+            for case in generator.generate(requirement).test_cases
+        ]
+    except (ValueError, TypeError) as exc:
+        raise HTTPException(422, str(exc)) from exc
+    if export_format == "json":
+        return Response(rally_exporter.to_json(cases), media_type="application/json")
+    if export_format == "csv":
+        return Response(
+            rally_exporter.to_csv(cases),
+            media_type="text/csv",
+            headers={"Content-Disposition": "attachment; filename=qualitypilot-rally.csv"},
+        )
+    raise HTTPException(422, "export_format must be json or csv")
+
+
+@app.get("/api/traceability")
+def traceability(db: Session = Depends(get_db)):
+    sample_path = ROOT / "requirements" / "user_stories.yaml"
+    requirements = parser.ingest(sample_path.read_text(encoding="utf-8"), "yaml")
+    cases = [
+        case for requirement in requirements for case in generator.generate(requirement).test_cases
+    ]
+    executions = db.query(TestExecution).order_by(TestExecution.timestamp).all()
+    return build_traceability_matrix(requirements, cases, executions)
+
+
+@app.get("/api/suites")
+def suites():
+    return {"suites": sorted(SUITES), "execution": "local allow-listed commands only"}
+
+
+@app.post("/api/suites/{suite}/run")
+def execute_suite(
+    suite: str,
+    db: Session = Depends(get_db),
+    settings: Settings = Depends(get_settings),
+    x_qualitypilot_execution_token: str | None = Header(default=None),
+):
+    if not x_qualitypilot_execution_token or not hmac.compare_digest(
+        x_qualitypilot_execution_token, settings.qualitypilot_execution_token
+    ):
+        raise HTTPException(401, "valid execution token required")
+    try:
+        result = run_suite(suite, ROOT)
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from exc
+    record_execution(
+        db,
+        execution_id=result.execution_id,
+        test_id=f"SUITE-{suite.upper()}",
+        status=result.status,
+        duration_seconds=result.duration_seconds,
+        environment="dashboard-local",
+        evidence={"exit_code": result.exit_code, "output_tail": result.output[-4000:]},
+    )
+    return result
+
+
+@app.post("/api/release-gates/evaluate")
+def evaluate_release(payload: ReleaseGateInput):
+    return release_gate_evaluator.evaluate(payload.evidence, payload.config)
 
 
 @app.post("/api/failures/analyze")

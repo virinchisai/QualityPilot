@@ -9,6 +9,7 @@ Do not open a public issue for a suspected vulnerability. Send a private GitHub 
 - Supply `JWT_SECRET` through environment or a deployment secret manager; `.env` is ignored.
 - Never commit bearer/refresh tokens, cookies, Playwright storage state, traces containing credentials, or real user data.
 - CI uses ephemeral databases and generated secrets. Sample values are deliberately non-production.
+- The local suite-execution endpoint requires a separate execution token and only accepts server-defined command allow-list entries.
 - Refresh records contain a SHA-256 JTI digest, not the token. Passwords use salted PBKDF2-HMAC-SHA256.
 
 ## Threat model
@@ -31,4 +32,3 @@ Bearer tokens in session storage make CSRF inapplicable to the current API patte
 ## Local ZAP
 
 With the SUT running: `docker run --rm --network host -v "$PWD:/zap/wrk/:rw" ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t http://localhost:8000 -r reports/zap.html`. Review findings before treating a baseline failure as an application defect.
-

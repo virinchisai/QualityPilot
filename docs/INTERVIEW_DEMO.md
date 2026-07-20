@@ -6,7 +6,7 @@ Run `docker compose up --build`, open the dashboard at `http://localhost:8501`, 
 
 ## 0:00–0:45 — Requirement intake
 
-Open **Requirement Lab**, select YAML, and use `AUTH-003` from `requirements/user_stories.yaml`. Generate cases. Point out the Pydantic-enforced fields, deterministic offline behavior, identity/security variant, and requirement IDs carried into tags.
+Open **Requirement Lab**, select YAML, and use `AUTH-003` from `requirements/user_stories.yaml`. Generate cases. Point out the Pydantic-enforced fields, deterministic offline behavior, identity/security variant, requirement IDs carried into tags, and Rally CSV/JSON downloads.
 
 ## 0:45–1:20 — Gherkin and traceability
 
@@ -26,9 +26,8 @@ Stop the SUT, set `DEFECT_DISABLE_REFRESH_ROTATION=true`, restart, then run the 
 
 ## 3:35–4:20 — Flaky signal and defect report
 
-Post alternating outcomes for one test to `/api/executions`, then open **Flaky Tests**. Show the transparent transition/retry score and stabilization advice. Submit the failure to `/api/defects`; open its Markdown, JSON, and Jira-compatible payload. Note that the Jira endpoint is mock-only and makes no external write.
+Post alternating outcomes for one test to `/api/executions`, then open **Flaky Tests**. Show the transparent transition/retry score and stabilization advice. Use **Demo Console** to create and download a controlled defect report. Open **Traceability** to connect requirements, automation surfaces, and last results. Note that external tracker payloads make no external write.
 
-## 4:20–5:00 — AI quality and CI/CD
+## 4:20–5:00 — Release gate, AI quality, and CI/CD
 
-In **AI Quality**, ask about refresh rotation, then try an instruction-injection prompt. Show citations, refusal, schema/groundedness checks, tool allow-list, and approval gate. Finish with GitHub Actions artifacts and CodeQL/Dependabot/ZAP configuration. Be explicit that PostgreSQL, distributed runners, Kafka infrastructure, and real defect-tracker writes are roadmap items.
-
+In **Release Gate**, approve a healthy release and then add a critical security failure to show a deterministic block reason. In **AI Quality**, try a grounded prompt and an instruction-injection prompt. Finish with green GitHub Actions badges, compatibility evidence, and CodeQL/Dependabot/ZAP configuration. Be explicit that PostgreSQL, distributed runners, Kafka infrastructure, and real defect-tracker writes are roadmap items.

@@ -1,12 +1,22 @@
 # QualityPilot
 
+[![QualityPilot CI](https://github.com/virinchisai/QualityPilot/actions/workflows/ci.yml/badge.svg)](https://github.com/virinchisai/QualityPilot/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/virinchisai/QualityPilot/actions/workflows/codeql.yml/badge.svg)](https://github.com/virinchisai/QualityPilot/actions/workflows/codeql.yml)
+[![Legacy compatibility](https://github.com/virinchisai/QualityPilot/actions/workflows/compatibility.yml/badge.svg)](https://github.com/virinchisai/QualityPilot/actions/workflows/compatibility.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 QualityPilot is a local-first, AI-assisted enterprise TestOps portfolio project. It converts requirements into validated test cases and Gherkin, exercises a real JWT/RBAC demo application through API and browser suites, records execution history and evidence, detects likely flaky tests, classifies failures, and produces professional defect reports. Its default path is deterministic and requires no paid API.
 
 > Project status: active MVP. Implemented, experimental, and planned capabilities are listed below without implied production claims.
 
+![QualityPilot requirement-to-release demo](docs/assets/qualitypilot-demo.gif)
+
+The demo moves through execution metrics, requirement-to-test generation, Rally-ready export, traceability, controlled defect analysis, and a release-gate decision. Regenerate it from a running stack with `node scripts/capture_demo.mjs`.
+
 ## Table of contents
 
 - [Why this project is useful](#why-this-project-is-useful)
+- [Measured project evidence](#measured-project-evidence)
 - [Business problem](#business-problem)
 - [Architecture](#architecture)
 - [Technology inventory](#technology-inventory)
@@ -41,6 +51,26 @@ The platform is deliberately local-first. Its default generation and analysis lo
 ## Business problem
 
 Quality work is often fragmented across requirements, test runners, CI artifacts, and issue trackers. QualityPilot keeps traceability and evidence in one inspectable workflow while making automation decisions reproducible.
+
+## Measured project evidence
+
+These values were extracted from test discovery and completed GitHub Actions runs on July 20, 2026. They are not estimated coverage or performance claims.
+
+| Evidence | Measured value |
+|---|---:|
+| Python tests discovered | 49 |
+| Python tests passing in the default local suite | 48 |
+| Opt-in Selenium tests skipped by default | 1 |
+| API, identity, and security tests | 20 |
+| Behave scenarios / steps | 4 / 12 |
+| Cucumber.js compatibility scenarios / steps | 2 / 8 |
+| Playwright Chromium checks | 9 total; 7 default and 2 opt-in demonstrations |
+| Supported requirement formats | 6 |
+| Deterministic failure categories | 9 |
+| Committed sample requirements | 6 |
+| Baseline successful GitHub CI duration | 1 minute 7 seconds |
+
+The latest source of truth is the [GitHub Actions page](https://github.com/virinchisai/QualityPilot/actions). Counts will increase as new tests are added.
 
 ## Architecture
 
@@ -98,7 +128,8 @@ Everything required for the default local path is free and open source.
 | Contract testing | Schemathesis | OpenAPI operation discovery and response validation |
 | Browser testing | Playwright Test, TypeScript | Page Objects, login/logout, sessions, profile, responsive, and cross-browser flows |
 | Accessibility | axe-core for Playwright | Automated serious and critical accessibility checks |
-| BDD | Behave, Gherkin | Feature scenarios, outlines, reusable steps, tags, and requirement traceability |
+| BDD | Behave, Gherkin, Cucumber.js | Primary Python BDD plus an executable Cucumber compatibility suite |
+| Legacy UI | Selenium WebDriver | Opt-in login smoke adapter for enterprise Selenium/Grid compatibility |
 | Load testing | Locust | Opt-in health and invalid-login load profile |
 | AI quality | Deterministic Python adapter, optional Ollama | Injection, grounding, citation, schema, tool, approval, and golden-data checks |
 | Event quality | JSON Schema | Duplicate, ordering, invalid-event, and dead-letter validation |
@@ -207,6 +238,23 @@ Terminal 3 — dashboard:
 | Demo SUT metrics | `http://localhost:8000/metrics` |
 | QualityPilot metrics | `http://localhost:8001/metrics` |
 
+### Create local demo credentials
+
+QualityPilot intentionally ships without a pre-seeded account or committed secret. Register this disposable local example after starting the SUT:
+
+```bash
+curl -X POST http://localhost:8000/api/register \
+  -H 'Content-Type: application/json' \
+  -d '{"email":"demo@example.com","password":"StrongPass!123","display_name":"Demo User"}'
+```
+
+Then sign in at `http://localhost:8000` with:
+
+- Email: `demo@example.com`
+- Password: `StrongPass!123`
+
+These are example local credentials, not a built-in account. Never reuse this password or commit real credentials.
+
 ## Docker installation
 
 ```bash
@@ -276,6 +324,27 @@ npm run test:cross-browser
 ```
 
 Playwright retains traces, screenshots, and videos on failure. HTML output appears in `playwright-report/`; test artifacts appear in `test-results/`; JUnit is written to `reports/playwright-junit.xml`.
+
+### Selenium compatibility
+
+Playwright remains primary because its auto-waiting, tracing, isolated contexts, and cross-browser tooling make the main suite smaller and more reliable. A working `SeleniumWebDriverAdapter` and headless Chrome login smoke test support legacy enterprise suites:
+
+```bash
+.venv/bin/pip install -e '.[selenium]'
+SELENIUM_COMPATIBILITY=true .venv/bin/pytest tests/selenium -m selenium -q
+```
+
+The optional `Legacy compatibility examples` workflow runs this test without slowing every standard CI run.
+
+### Cucumber.js compatibility
+
+Behave is the primary BDD runtime, while this executable Cucumber.js suite proves the generated Gherkin contract is portable:
+
+```bash
+npm run test:cucumber
+```
+
+Both compatibility suites require the demo SUT at `http://localhost:8000`.
 
 ### Code-quality checks
 
@@ -349,6 +418,25 @@ Set one `DEFECT_*` variable only in a controlled local run, restart the SUT, and
 
 Available local fault modes cover refresh rotation, expired tokens, admin authorization, response delay, status codes, selectors, intermittent failures, and malformed JSON. Never enable them in a shared or production environment.
 
+## Rally-compatible test-case export
+
+`RallyTestCaseExporter` converts every validated QualityPilot case to import-friendly JSON or CSV without requiring a Rally account. Exported fields include `FormattedID`, `Name`, `WorkProduct`, `Type`, `Priority`, `PreConditions`, structured `Steps`, `ExpectedResult`, `Method`, and `Tags`.
+
+```bash
+curl -X POST 'http://localhost:8001/api/requirements/export/rally?export_format=csv' \
+  -H 'Content-Type: application/json' \
+  -d '{"source_format":"text","content":"User login"}' \
+  --output qualitypilot-rally.csv
+```
+
+The Requirement Lab also provides Rally JSON and CSV download buttons after generation.
+
+## Requirements traceability and release gates
+
+The dashboard traceability matrix connects each sample requirement to generated test IDs, API/UI/security surfaces, automation status, and latest execution result. The backing endpoint is `GET /api/traceability`.
+
+The release gate evaluates smoke failures, critical security failures, pass rate, high-confidence flaky tests, and critical open defects. Thresholds are configurable and the result is a structured `approved` or `blocked` decision with specific reasons. CI evaluates the generated Python JUnit file through `scripts/evaluate_release.py` and publishes `reports/release-gate.json`.
+
 ## AI and event quality
 
 ### AI quality
@@ -370,8 +458,12 @@ The golden dataset is stored at `examples/ai_golden_dataset.json`. To use Ollama
 | pytest/HTTPX identity and API suites | Implemented | Includes OpenAPI schema assertions |
 | Playwright POM, mobile/cross-browser, trace/video/screenshots | Implemented | Browser binaries installed separately |
 | Behave traceability suite | Implemented | Primary BDD implementation |
+| Cucumber.js compatibility | Implemented | Two executable identity/RBAC scenarios |
+| Selenium WebDriver adapter | Implemented | One opt-in headless Chrome login smoke test |
 | History, failure/flaky analysis, defect reports | Implemented | Deterministic local engine |
-| Streamlit dashboard and metrics | Implemented | Local operator UI |
+| Streamlit dashboard, traceability, Rally downloads, and release gates | Implemented | Interactive local operator UI |
+| Rally-compatible CSV and JSON export | Implemented | No paid Rally account required |
+| Release-level quality gates | Implemented | API, dashboard, and CI JUnit evaluator |
 | AI-quality and mock stream validation | Implemented | Deterministic examples |
 | Schemathesis, axe, visual, Locust, ZAP | Experimental | Working examples/workflows; opt-in dependencies |
 | PostgreSQL, distributed workers, Jira writes | Planned | Adapter seams/payload only |
@@ -384,6 +476,7 @@ The golden dataset is stored at `examples/ai_golden_dataset.json`. To use Ollama
 | `ENVIRONMENT` | `development` | Activates production safety validation when set to `production` |
 | `DATABASE_URL` | `sqlite:///./qualitypilot.db` | SQLAlchemy connection string |
 | `JWT_SECRET` | local example | JWT signing secret; replace outside disposable local use |
+| `QUALITYPILOT_EXECUTION_TOKEN` | local example | Protects allow-listed dashboard suite execution; replace in shared environments |
 | `ACCESS_TOKEN_MINUTES` | `15` | Access-token lifetime |
 | `REFRESH_TOKEN_MINUTES` | `1440` | Refresh-token lifetime |
 | `LOGIN_RATE_LIMIT` | `5` | Attempts allowed in the local window |
@@ -408,6 +501,7 @@ GitHub Actions lint and run Python, API, identity, BDD, and Playwright suites ag
 |---|---|
 | `ci.yml` | Ruff, pytest, Behave, duplicate-step checks, ESLint, Prettier, TypeScript, Playwright, Docker build, summaries, and artifacts |
 | `codeql.yml` | Scheduled and pull-request Python/JavaScript security analysis |
+| `compatibility.yml` | Optional Selenium WebDriver and Cucumber.js execution |
 | `zap.yml` | Manually triggered OWASP ZAP baseline against the local SUT |
 | `dependabot.yml` | Weekly pip, npm, and GitHub Actions dependency updates |
 
@@ -447,6 +541,7 @@ Additional project references:
 - [Contribution standards](CONTRIBUTING.md)
 - [Change history](CHANGELOG.md)
 - [Sample defect report](reports/sample-defect.md)
+- [v1.0.0 release notes](docs/RELEASE_NOTES_v1.0.0.md)
 
 ## License
 
