@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "qualitypilot"
-version = "0.1.0"
+version = "1.0.0"
 description = "Local-first intelligent enterprise TestOps platform"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -34,6 +34,7 @@ test = [
 ]
 dev = ["qualitypilot[test,dashboard]", "ruff>=0.8,<1", "mypy>=1.13,<2"]
 load = ["locust>=2.32,<3"]
+selenium = ["pytest>=9,<10", "selenium>=4.27,<5"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["qualitypilot", "app"]
@@ -45,6 +46,7 @@ markers = [
   "api: API integration tests",
   "identity: authentication and authorization tests",
   "security: security regression tests",
+  "selenium: optional Selenium compatibility tests",
 ]
 
 [tool.ruff]

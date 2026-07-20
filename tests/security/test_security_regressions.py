@@ -10,6 +10,15 @@ def test_production_rejects_defect_flags():
         Settings(environment="production", jwt_secret="x" * 32, defect_break_admin_auth=True)
 
 
+def test_production_requires_a_strong_execution_token():
+    with pytest.raises(ValueError, match="QUALITYPILOT_EXECUTION_TOKEN"):
+        Settings(
+            environment="production",
+            jwt_secret="x" * 32,
+            qualitypilot_execution_token="short",
+        )
+
+
 def test_password_policy_reports_all_required_classes(client):
     response = client.post(
         "/api/register", json={"email": "weak@example.com", "password": "alllowercase"}

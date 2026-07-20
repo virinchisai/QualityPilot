@@ -33,6 +33,15 @@ def test_supported_requirement_formats(content, fmt, title):
     assert LocalRequirementAdapter().ingest(content, fmt)[0].title == title
 
 
+def test_gherkin_parser_handles_long_untrusted_whitespace_without_regex_backtracking():
+    content = "Feature:" + (" " * 100_000) + "Safe parsing\n  Scenario: remains responsive"
+
+    requirement = LocalRequirementAdapter().ingest(content, "gherkin")[0]
+
+    assert requirement.title == "Safe parsing"
+    assert requirement.acceptance_criteria == ["remains responsive"]
+
+
 def test_generator_validates_complete_cases_and_traceability():
     requirement = LocalRequirementAdapter().ingest("User login", "text")[0]
     result = DeterministicTestGenerator().generate(requirement)

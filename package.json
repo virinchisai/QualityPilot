@@ -5,12 +5,14 @@
     "test": "playwright test --project=chromium",
     "test:cross-browser": "playwright test",
     "test:mobile": "playwright test --project=mobile-chrome",
+    "test:cucumber": "cucumber-js --config cucumber.config.mjs",
     "format:check": "prettier --check 'playwright/**/*.ts'",
     "lint": "eslint playwright playwright.config.ts",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.10.1",
+    "@cucumber/cucumber": "^12.2.0",
     "@playwright/test": "^1.49.0",
     "@types/node": "^22.20.1",
     "@typescript-eslint/eslint-plugin": "^8.18.0",

@@ -8,4 +8,5 @@
 - Built an offline AI-agent quality harness that checks prompt-injection refusal, grounding and citation validity, structured output, tool allow-lists, unsafe actions, human approval gates, and golden-answer regression without requiring a paid model API.
 - Automated Python, Behave, Playwright, Docker, CodeQL, Dependabot, and opt-in OWASP ZAP workflows with health-gated services, JUnit/HTML output, failure evidence retention, artifact upload, and GitHub Actions summaries.
 - Added deterministic JSON Schema event validation for duplicate IDs, per-aggregate ordering, invalid events, and dead-letter routing concepts, plus a working Locust load profile and Prometheus-compatible application metrics.
-
+- Implemented Rally-compatible CSV/JSON test-case export, an enterprise requirements traceability matrix, and configurable release gates that block on smoke/security failures, pass-rate thresholds, high-confidence flaky tests, and critical open defects.
+- Added executable Selenium WebDriver and Cucumber.js compatibility suites alongside the primary Playwright and Behave frameworks to support modern and legacy enterprise automation environments.

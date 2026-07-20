@@ -19,6 +19,8 @@ jobs:
           DATABASE_URL: sqlite:///./ci.db
           JWT_SECRET: ci-secret-that-is-at-least-thirty-two-characters
           LOGIN_RATE_LIMIT: 100
+      - name: Evaluate release quality gate
+        run: python scripts/evaluate_release.py --junit reports/python-junit.xml
       - run: behave tests/bdd --junit --junit-directory reports/behave
         env:
           DATABASE_URL: sqlite:///./bdd-ci.db

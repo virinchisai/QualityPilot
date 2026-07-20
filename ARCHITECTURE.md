@@ -13,6 +13,9 @@ flowchart LR
   X --> E[Evidence + execution history]
   E --> A[Failure + flaky analysis]
   A --> P[Markdown / JSON / Jira report]
+  G --> Y[Rally CSV / JSON exporter]
+  E --> T[Traceability matrix]
+  A --> RG[Release quality gate]
   O[Optional Ollama] -. summary .-> A
   M[Prometheus] --> Q
 ```
@@ -66,6 +69,8 @@ The analyzer uses transparent rules before optional language-model summarization
 ## Extension path
 
 The UI adapter contract can wrap Selenium/Grid without changing domain models; Playwright is the implemented runner. Behave is the primary BDD runtime, while a Cucumber.js adapter can consume the same generated feature text and traceability tags. Database URLs and stateless API containers are suitable for later AWS or Azure deployment, but no cloud infrastructure is claimed. PostgreSQL, broker-backed workers, Kafka, and remote defect trackers remain planned.
+
+QualityPilot now includes a small executable Selenium WebDriver adapter and Cucumber.js identity example while retaining Playwright and Behave as the primary suites. Rally export, the traceability matrix, and release-gate evaluator are pure domain services exposed through the API and dashboard, so they do not couple generation to a specific external tracker or CI provider.
 
 ## Observability
 
