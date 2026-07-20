@@ -1,0 +1,2 @@
+"""QualityPilot applications."""
+
