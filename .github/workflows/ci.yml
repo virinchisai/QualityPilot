@@ -1,0 +1,68 @@
+name: QualityPilot CI
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12", cache: pip }
+      - run: pip install -e '.[dev]'
+      - run: ruff check .
+      - run: python scripts/check_duplicate_steps.py
+      - run: pytest --junitxml=reports/python-junit.xml
+        env:
+          DATABASE_URL: sqlite:///./ci.db
+          JWT_SECRET: ci-secret-that-is-at-least-thirty-two-characters
+          LOGIN_RATE_LIMIT: 100
+      - run: behave tests/bdd --junit --junit-directory reports/behave
+        env:
+          DATABASE_URL: sqlite:///./bdd-ci.db
+          JWT_SECRET: ci-secret-that-is-at-least-thirty-two-characters
+          LOGIN_RATE_LIMIT: 100
+      - name: Publish summary
+        if: always()
+        run: |
+          echo '## QualityPilot Python and BDD' >> "$GITHUB_STEP_SUMMARY"
+          echo 'JUnit and Behave evidence are attached to this run.' >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: python-bdd-reports, path: "reports/**", if-no-files-found: warn }
+  playwright:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12", cache: pip }
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: npm }
+      - run: pip install -e .
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Start demo SUT
+        run: uvicorn app.demo_app.main:app --host 127.0.0.1 --port 8000 > demo-app.log 2>&1 &
+        env:
+          DATABASE_URL: sqlite:///./playwright-ci.db
+          JWT_SECRET: ci-secret-that-is-at-least-thirty-two-characters
+          LOGIN_RATE_LIMIT: 100
+      - name: Wait for health
+        run: for i in {1..30}; do curl -fsS http://127.0.0.1:8000/health && exit 0; sleep 1; done; exit 1
+      - run: npx playwright test --project=chromium
+      - name: Publish summary
+        if: always()
+        run: echo '## Playwright UI and accessibility evidence' >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: playwright-evidence, path: "playwright-report/**\ntest-results/**\nreports/playwright-junit.xml\ndemo-app.log", if-no-files-found: warn }
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with: { context: ., push: false, tags: qualitypilot:ci }
+
