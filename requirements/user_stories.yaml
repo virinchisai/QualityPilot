@@ -1,0 +1,36 @@
+requirements:
+  - id: AUTH-001
+    title: User login
+    description: A registered user signs in with valid credentials and receives tokens.
+    acceptance_criteria:
+      - Valid credentials return an access token and refresh token.
+      - Invalid credentials return 401 without identifying the incorrect field.
+  - id: AUTH-002
+    title: Password validation
+    description: Registration enforces the documented password policy.
+    acceptance_criteria:
+      - Passwords require 12 characters, upper and lower case, a number, and a symbol.
+  - id: AUTH-003
+    title: Token refresh
+    description: A valid refresh token rotates and replay is rejected.
+    acceptance_criteria:
+      - Refresh returns a new access and refresh token.
+      - Reusing the previous refresh token returns 401.
+  - id: AUTH-004
+    title: Logout and session expiration
+    description: Logout invalidates the refresh family and expired access tokens are rejected.
+    acceptance_criteria:
+      - Logout returns 204.
+      - An expired token cannot access a protected route.
+  - id: AUTH-005
+    title: Admin access and RBAC
+    description: Only administrators can access audit events.
+    acceptance_criteria:
+      - A standard user receives 403.
+      - An administrator receives 200.
+  - id: PROFILE-001
+    title: Profile update
+    description: Authenticated users can update and retrieve their display name.
+    acceptance_criteria:
+      - The updated name is persisted.
+

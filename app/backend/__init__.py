@@ -1,2 +1,1 @@
 """QualityPilot control-plane API."""
-
