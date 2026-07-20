@@ -27,7 +27,7 @@ dependencies = [
 dashboard = ["streamlit>=1.40,<2", "pandas>=2.2,<3"]
 test = [
   "pytest>=9,<10",
-  "pytest-cov>=6,<7",
+  "pytest-cov>=6,<8",
   "behave>=1.2.6,<2",
   "jsonschema>=4.23,<5",
   "schemathesis>=4,<5",
