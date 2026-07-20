@@ -15,7 +15,7 @@ jobs:
   selenium-cucumber:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-python@v5
         with: { python-version: "3.12", cache: pip }
       - uses: actions/setup-node@v4
