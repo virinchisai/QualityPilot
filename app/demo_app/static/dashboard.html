@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width">
+<title>User Dashboard</title><link rel="stylesheet" href="/static/styles.css"></head>
+<body><main><nav><h1>User dashboard</h1><button id="logout">Log out</button></nav><p id="status" role="status">Loading profile…</p>
+<form id="profile-form" hidden><label>Display name<input id="display-name" required maxlength="100"></label><button type="submit">Save profile</button></form>
+<section id="admin" hidden><h2>Administration</h2><a href="#audit" id="audit-link">Audit events</a></section><p id="error" class="error" role="alert"></p></main>
+<script>
+const access=()=>sessionStorage.getItem('access_token'); const auth=()=>({'Authorization':`Bearer ${access()}`,'content-type':'application/json'});
+async function load(){if(!access()){location.href='/';return;} const r=await fetch('/api/me',{headers:auth()});if(r.status===401){sessionStorage.clear();location.href='/';return;}const u=await r.json();
+ document.querySelector('#status').textContent=`Signed in as ${u.email} (${u.role})`;document.querySelector('#display-name').value=u.display_name;document.querySelector('#profile-form').hidden=false;document.querySelector('#admin').hidden=u.role!=='admin';}
+document.querySelector('#profile-form').addEventListener('submit',async e=>{e.preventDefault();const r=await fetch('/api/me',{method:'PATCH',headers:auth(),body:JSON.stringify({display_name:document.querySelector('#display-name').value})});document.querySelector('#error').textContent=r.ok?'Profile updated':'Update failed';});
+document.querySelector('#logout').addEventListener('click',async()=>{await fetch('/api/logout',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({refresh_token:sessionStorage.getItem('refresh_token')})});sessionStorage.clear();location.href='/';});load();
+</script></body></html>
