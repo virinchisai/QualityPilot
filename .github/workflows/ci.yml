@@ -31,7 +31,7 @@ jobs:
         run: |
           echo '## QualityPilot Python and BDD' >> "$GITHUB_STEP_SUMMARY"
           echo 'JUnit and Behave evidence are attached to this run.' >> "$GITHUB_STEP_SUMMARY"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with: { name: python-bdd-reports, path: "reports/**", if-no-files-found: warn }
   playwright:
@@ -60,7 +60,7 @@ jobs:
       - name: Publish summary
         if: always()
         run: echo '## Playwright UI and accessibility evidence' >> "$GITHUB_STEP_SUMMARY"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with: { name: playwright-evidence, path: "playwright-report/**\ntest-results/**\nreports/playwright-junit.xml\ndemo-app.log", if-no-files-found: warn }
   docker:
