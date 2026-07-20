@@ -63,4 +63,4 @@
 - [x] Truthful measured project evidence
 - [x] Configurable release-level quality gates
 - [x] Interactive dashboard execution, defect, download, and release controls
-- [ ] Publish GitHub v1.0.0 release after protected-branch CI succeeds
+- [x] Publish GitHub v1.0.0 release after protected-branch CI succeeds
