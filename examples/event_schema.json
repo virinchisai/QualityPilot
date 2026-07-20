@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["event_id", "aggregate_id", "sequence", "event_type", "payload"],
+  "properties": {
+    "event_id": {"type": "string", "minLength": 1},
+    "aggregate_id": {"type": "string", "minLength": 1},
+    "sequence": {"type": "integer", "minimum": 0},
+    "event_type": {"type": "string"},
+    "payload": {"type": "object"}
+  },
+  "additionalProperties": false
+}
+

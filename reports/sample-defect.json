@@ -1,0 +1,25 @@
+{
+  "defect_id": "QP-TC-AUTH-003-002",
+  "title": "Refresh token replay was accepted",
+  "summary": "A rotated refresh token was accepted while the controlled non-rotation flag was enabled.",
+  "severity": "major",
+  "priority": "high",
+  "component": "identity",
+  "environment": {"name": "local-demo"},
+  "build_commit": "local-demo",
+  "preconditions": ["A registered user has a valid refresh token"],
+  "steps_to_reproduce": ["Refresh once", "Replay the original refresh token"],
+  "expected_result": "The replay returns 401",
+  "actual_result": "The replay returned 200",
+  "logs": [],
+  "screenshot_references": [],
+  "video_references": [],
+  "trace_references": [],
+  "api_request_response": {"request": {"path": "/api/token/refresh"}, "response": {"status": 200}},
+  "suspected_cause": "Controlled demo flag disabled refresh rotation",
+  "recommended_owner": "security/backend",
+  "related_test_case": "TC-AUTH-003-002",
+  "labels": ["authentication_failure", "qualitypilot", "sample"],
+  "timestamp": "2026-07-20T00:00:00Z"
+}
+
