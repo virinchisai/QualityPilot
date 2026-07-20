@@ -24,7 +24,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dashboard = ["streamlit>=1.40,<2", "pandas>=2.2,<3"]
+dashboard = ["streamlit>=1.40,<2", "pandas>=2.2,<4"]
 test = [
   "pytest>=9,<10",
   "pytest-cov>=6,<7",
