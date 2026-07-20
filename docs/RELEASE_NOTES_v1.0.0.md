@@ -15,7 +15,7 @@ QualityPilot v1.0.0 is the first portfolio-ready release of the local-first ente
 
 ## Verified evidence
 
-- 49 Python tests discovered: 48 pass by default and one Selenium test is opt-in.
+- 50 Python tests discovered: 49 pass by default and one Selenium test is opt-in.
 - 4 Behave scenarios with 12 steps.
 - 2 Cucumber.js scenarios with 8 steps.
 - 9 Playwright Chromium checks: 7 default and 2 opt-in demonstrations.

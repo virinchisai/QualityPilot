@@ -58,8 +58,8 @@ These values were extracted from test discovery and completed GitHub Actions run
 
 | Evidence | Measured value |
 |---|---:|
-| Python tests discovered | 49 |
-| Python tests passing in the default local suite | 48 |
+| Python tests discovered | 50 |
+| Python tests passing in the default local suite | 49 |
 | Opt-in Selenium tests skipped by default | 1 |
 | API, identity, and security tests | 20 |
 | Behave scenarios / steps | 4 / 12 |

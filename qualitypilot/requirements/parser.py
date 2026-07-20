@@ -86,9 +86,21 @@ class LocalRequirementAdapter(RequirementSourceAdapter):
         return requirements
 
     def _gherkin(self, content: str) -> list[Requirement]:
-        match = re.search(r"(?m)^Feature:\s*(.+)$", content)
-        title = match.group(1).strip() if match else "Gherkin feature"
-        scenarios = re.findall(r"(?m)^\s*Scenario(?: Outline)?:\s*(.+)$", content)
+        title = "Gherkin feature"
+        scenarios: list[str] = []
+        for line in content.splitlines():
+            stripped = line.strip()
+            if stripped.startswith("Feature:") and title == "Gherkin feature":
+                candidate = stripped.removeprefix("Feature:").strip()
+                if candidate:
+                    title = candidate
+                continue
+            for prefix in ("Scenario Outline:", "Scenario:"):
+                if stripped.startswith(prefix):
+                    candidate = stripped.removeprefix(prefix).strip()
+                    if candidate:
+                        scenarios.append(candidate)
+                    break
         return [
             Requirement(
                 id=_stable_id(title),
