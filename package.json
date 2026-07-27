@@ -12,7 +12,7 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.10.1",
-    "@cucumber/cucumber": "^12.2.0",
+    "@cucumber/cucumber": "^13.2.0",
     "@playwright/test": "^1.49.0",
     "@types/node": "^22.20.1",
     "@typescript-eslint/eslint-plugin": "^8.18.0",
