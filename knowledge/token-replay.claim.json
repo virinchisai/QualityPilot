@@ -1,0 +1,18 @@
+{
+  "id": "qualitypilot/auth#refresh-replay-status",
+  "subject": "authentication-requirements",
+  "predicate": "refresh_token_replay_status",
+  "value": 401,
+  "sources": [{
+    "uri": "requirements/user_stories.yaml",
+    "sha256": "f2d6bce58244cdfdf573bbba476f1030d6a7aa12941a546671506f4bb5e08895",
+    "classification": "internal"
+  }],
+  "classification": "internal",
+  "audiences": ["employee"],
+  "owner": "identity-team",
+  "verified_at": "2026-08-31",
+  "stale_after": "2027-08-31",
+  "status": "stable",
+  "body": "Reusing a previously rotated refresh token returns HTTP 401."
+}

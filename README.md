@@ -2,6 +2,7 @@
 
 [![QualityPilot CI](https://github.com/virinchisai/QualityPilot/actions/workflows/ci.yml/badge.svg)](https://github.com/virinchisai/QualityPilot/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/virinchisai/QualityPilot/actions/workflows/codeql.yml/badge.svg)](https://github.com/virinchisai/QualityPilot/actions/workflows/codeql.yml)
+[![Knowledge Reliability](https://github.com/virinchisai/QualityPilot/actions/workflows/knowledge-reliability.yml/badge.svg)](https://github.com/virinchisai/QualityPilot/actions/workflows/knowledge-reliability.yml)
 [![Legacy compatibility](https://github.com/virinchisai/QualityPilot/actions/workflows/compatibility.yml/badge.svg)](https://github.com/virinchisai/QualityPilot/actions/workflows/compatibility.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
