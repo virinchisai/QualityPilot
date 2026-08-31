@@ -1,0 +1,18 @@
+{
+  "id": "qualitypilot/auth#standard-user-admin-status",
+  "subject": "authentication-requirements",
+  "predicate": "standard_user_admin_audit_status",
+  "value": 403,
+  "sources": [{
+    "uri": "requirements/user_stories.yaml",
+    "sha256": "f2d6bce58244cdfdf573bbba476f1030d6a7aa12941a546671506f4bb5e08895",
+    "classification": "internal"
+  }],
+  "classification": "internal",
+  "audiences": ["employee"],
+  "owner": "identity-team",
+  "verified_at": "2026-08-31",
+  "stale_after": "2027-08-31",
+  "status": "stable",
+  "body": "A standard user receives HTTP 403 when requesting administrator audit events."
+}

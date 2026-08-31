@@ -1,0 +1,20 @@
+{
+  "name": "Authentication requirements remain traceable",
+  "audience": "employee",
+  "required_claims": [
+    "qualitypilot/auth#minimum-password-length",
+    "qualitypilot/auth#standard-user-admin-status",
+    "qualitypilot/auth#refresh-replay-status"
+  ],
+  "required_sources": ["requirements/user_stories.yaml"],
+  "expected_values": {
+    "qualitypilot/auth#minimum-password-length": 12,
+    "qualitypilot/auth#standard-user-admin-status": 403,
+    "qualitypilot/auth#refresh-replay-status": 401
+  },
+  "expected_classifications": {
+    "qualitypilot/auth#minimum-password-length": "internal",
+    "qualitypilot/auth#standard-user-admin-status": "internal",
+    "qualitypilot/auth#refresh-replay-status": "internal"
+  }
+}
